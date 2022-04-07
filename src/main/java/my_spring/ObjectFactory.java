@@ -1,11 +1,12 @@
 package my_spring;
 
 import lombok.SneakyThrows;
+import org.reflections.Reflections;
 
-import java.lang.invoke.SerializedLambda;
-import java.lang.reflect.Constructor;
-import java.lang.reflect.Field;
-import java.util.Random;
+import java.lang.reflect.Modifier;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Set;
 
 /**
  * @author Evgeny Borisov
@@ -13,14 +14,24 @@ import java.util.Random;
 public class ObjectFactory {
     private static ObjectFactory instance = new ObjectFactory();
     private Config config = new JavaConfig();
+    private List<ObjectConfigurer> configurers = new ArrayList<>();
+
+
+    @SneakyThrows
+    public ObjectFactory() {
+        Reflections scanner = new Reflections("my_spring");
+        Set<Class<? extends ObjectConfigurer>> set = scanner.getSubTypesOf(ObjectConfigurer.class);
+        for (Class<? extends ObjectConfigurer> aClass : set) {
+            if (!Modifier.isAbstract(aClass.getModifiers())) {
+                configurers.add(aClass.getDeclaredConstructor().newInstance());
+            }
+        }
+    }
 
     public static ObjectFactory getInstance() {
 
         return instance;
     }
-
-
-
 
 
     @SneakyThrows
@@ -32,29 +43,9 @@ public class ObjectFactory {
 
         T t = type.getDeclaredConstructor().newInstance();
 
-
-        Field[] fields = type.getDeclaredFields();
-        for (Field field : fields) {
-            InjectRandomInt annotation = field.getAnnotation(InjectRandomInt.class);
-            if (annotation != null) {
-                Random random = new Random();
-                int min = annotation.min();
-                int max = annotation.max();
-
-                int value = random.nextInt(max - min) + min + 1;
-
-                field.setAccessible(true);
-                field.set(t,value);
-
-
-
-
-
-
-            }
+        for (ObjectConfigurer configurer : configurers) {
+            configurer.configure(t);
         }
-
-
 
         return t;
 
