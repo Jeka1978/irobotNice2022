@@ -14,6 +14,7 @@ public class JavaConfig implements Config {
     public JavaConfig() {
         ifc2Impl.put(Speaker.class, ConsoleSpeaker.class);
         ifc2Impl.put(Cleaner.class, CleanerImpl.class);
+        ifc2Impl.put(NiceService.class, NiceServiceImpl.class);
     }
 
     @Override

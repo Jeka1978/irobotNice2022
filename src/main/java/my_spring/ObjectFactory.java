@@ -16,6 +16,7 @@ public class ObjectFactory {
     private static ObjectFactory instance = new ObjectFactory();
     private Config config = new JavaConfig();
     private List<ObjectConfigurer> configurers = new ArrayList<>();
+    private List<ProxyConfigurer> proxyConfigurers = new ArrayList<>();
 
 
     @SneakyThrows
@@ -26,6 +27,10 @@ public class ObjectFactory {
             if (!Modifier.isAbstract(aClass.getModifiers())) {
                 configurers.add(aClass.getDeclaredConstructor().newInstance());
             }
+        }
+        Set<Class<? extends ProxyConfigurer>> classes = scanner.getSubTypesOf(ProxyConfigurer.class);
+        for (Class<? extends ProxyConfigurer> aClass : classes) {
+            proxyConfigurers.add(aClass.getDeclaredConstructor().newInstance());
         }
     }
 
@@ -46,19 +51,8 @@ public class ObjectFactory {
 
         invokeInitMethod(type, t);
 
-        if (type.isAnnotationPresent(Profiling.class)) {
-            return (T) Proxy.newProxyInstance(type.getClassLoader(), type.getInterfaces(), new InvocationHandler() {
-                @Override
-                public Object invoke(Object proxy, Method method, Object[] args) throws Throwable {
-                    System.out.println("*********** profiling started for method : "+method.getName());
-                    long start = System.nanoTime();
-                    Object retVal = method.invoke(t, args);
-                    long end = System.nanoTime();
-                    System.out.println(end-start);
-                    System.out.println("*********** profiling ended for method : "+method.getName());
-                    return retVal;
-                }
-            });
+        for (ProxyConfigurer proxyConfigurer : proxyConfigurers) {
+            t = (T) proxyConfigurer.wrapWithProxy(t);
         }
 
 
