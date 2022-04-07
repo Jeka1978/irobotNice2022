@@ -1,13 +1,18 @@
 package my_spring;
 
+import lombok.SneakyThrows;
+
+import java.lang.invoke.SerializedLambda;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Field;
+import java.util.Random;
 
 /**
  * @author Evgeny Borisov
  */
 public class ObjectFactory {
     private static ObjectFactory instance = new ObjectFactory();
+    private Config config = new JavaConfig();
 
     public static ObjectFactory getInstance() {
 
@@ -15,35 +20,48 @@ public class ObjectFactory {
     }
 
 
-    public void stam(Object o) throws IllegalAccessException {
-        Field[] fields = o.getClass().getDeclaredFields();
-
-        for (Field field : fields) {
-            if (field.getName().startsWith("xyz")) {
-                field.setAccessible(true);
-                field.set(o,12);
-            }
-        }
-    }
-
-    public void stam2(String className) throws Exception {
-        Class<?> aClass = Class.forName(className);
-        Constructor<?> constructor = aClass.getDeclaredConstructor();
-        Object o = constructor.newInstance();
-    }
 
 
-    public <T> T createObject(Class<T> type) throws Exception {
+
+    @SneakyThrows
+    public <T> T createObject(Class<T> type) {
 
         if (type.isInterface()) {
-
+            type = config.getImplClass(type);
         }
 
-        //todo finish this
-        return null;
+        T t = type.getDeclaredConstructor().newInstance();
+
+
+        Field[] fields = type.getDeclaredFields();
+        for (Field field : fields) {
+            InjectRandomInt annotation = field.getAnnotation(InjectRandomInt.class);
+            if (annotation != null) {
+                Random random = new Random();
+                int min = annotation.min();
+                int max = annotation.max();
+
+                int value = random.nextInt(max - min) + min + 1;
+
+                field.setAccessible(true);
+                field.set(t,value);
+
+
+
+
+
+
+            }
+        }
+
+
+
+        return t;
 
     }
 }
+
+
 
 
 
