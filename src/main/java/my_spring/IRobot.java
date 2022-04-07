@@ -2,6 +2,8 @@ package my_spring;
 
 import lombok.Setter;
 
+import javax.annotation.PostConstruct;
+
 /**
  * @author Evgeny Borisov
  */
@@ -20,17 +22,14 @@ public class IRobot {
     @InjectByType
     private Cleaner cleaner;
 
-
-    public IRobot(Speaker speaker, Cleaner cleaner) {
-        this.speaker = speaker;
-        this.cleaner = cleaner;
+    @PostConstruct
+    public void print() {
+        System.out.println(cleaner.getClass());
     }
 
     public void cleanRoom() {
         speaker.speak("I started");
-
         cleaner.clean();
-
         speaker.speak("I finished");
     }
 }

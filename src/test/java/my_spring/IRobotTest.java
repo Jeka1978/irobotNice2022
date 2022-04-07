@@ -12,7 +12,7 @@ public class IRobotTest {
     @Test
     public void cleanRoom() {
         IRobot iRobot = new IRobot();
-        iRobot.
+        iRobot.cleanRoom();
 
     }
 }

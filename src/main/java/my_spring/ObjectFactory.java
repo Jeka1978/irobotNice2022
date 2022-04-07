@@ -3,6 +3,9 @@ package my_spring;
 import lombok.SneakyThrows;
 import org.reflections.Reflections;
 
+import javax.annotation.PostConstruct;
+import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
 import java.util.ArrayList;
 import java.util.List;
@@ -37,18 +40,39 @@ public class ObjectFactory {
     @SneakyThrows
     public <T> T createObject(Class<T> type) {
 
-        if (type.isInterface()) {
-            type = config.getImplClass(type);
-        }
+        type = resolveImpl(type);
 
         T t = type.getDeclaredConstructor().newInstance();
 
-        for (ObjectConfigurer configurer : configurers) {
-            configurer.configure(t);
-        }
+        configure(t);
+
+        invokeInitMethod(type, t);
+
 
         return t;
 
+    }
+
+    private <T> void invokeInitMethod(Class<T> type, T t) throws IllegalAccessException, InvocationTargetException {
+        Method[] methods = type.getMethods();
+        for (Method method : methods) {
+            if (method.isAnnotationPresent(PostConstruct.class)) {
+                method.invoke(t);
+            }
+        }
+    }
+
+    private <T> void configure(T t) {
+        for (ObjectConfigurer configurer : configurers) {
+            configurer.configure(t);
+        }
+    }
+
+    private <T> Class<T> resolveImpl(Class<T> type) {
+        if (type.isInterface()) {
+            type = config.getImplClass(type);
+        }
+        return type;
     }
 }
 
