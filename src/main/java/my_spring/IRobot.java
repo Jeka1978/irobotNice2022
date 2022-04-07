@@ -25,6 +25,7 @@ public class IRobot {
     @PostConstruct
     public void print() {
         System.out.println(cleaner.getClass());
+        System.out.println(speaker.getClass());
     }
 
     public void cleanRoom() {

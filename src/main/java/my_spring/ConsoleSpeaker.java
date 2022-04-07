@@ -3,6 +3,7 @@ package my_spring;
 /**
  * @author Evgeny Borisov
  */
+@Profiling
 public class ConsoleSpeaker implements Speaker {
 
 

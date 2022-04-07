@@ -5,6 +5,9 @@ import javax.annotation.PostConstruct;
 /**
  * @author Evgeny Borisov
  */
+
+
+@Profiling
 public class CleanerImpl implements Cleaner {
 
 
