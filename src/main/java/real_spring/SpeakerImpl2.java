@@ -6,6 +6,7 @@ import org.springframework.stereotype.Component;
  * @author Evgeny Borisov
  */
 @Component
+@Powerful
 public class SpeakerImpl2 implements Speaker {
     @Override
     public void speak(String message) {

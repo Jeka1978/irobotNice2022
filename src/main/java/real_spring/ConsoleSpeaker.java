@@ -12,7 +12,7 @@ import org.springframework.stereotype.Component;
 @Profiling
 @Scope("prototype")
 @Component
-@Primary
+//@Primary
 public class ConsoleSpeaker implements Speaker {
 
     @Override

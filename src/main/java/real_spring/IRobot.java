@@ -14,6 +14,7 @@ import javax.annotation.PostConstruct;
 public class IRobot {
 
     @Autowired
+    @Powerful
     private Speaker speaker;
 
     @Autowired
