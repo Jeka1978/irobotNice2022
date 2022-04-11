@@ -2,6 +2,7 @@ package real_spring;
 
 
 import my_spring.Profiling;
+import org.springframework.context.annotation.Primary;
 import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Component;
 
@@ -11,6 +12,7 @@ import org.springframework.stereotype.Component;
 @Profiling
 @Scope("prototype")
 @Component
+@Primary
 public class ConsoleSpeaker implements Speaker {
 
     @Override
